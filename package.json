@@ -1,0 +1,44 @@
+{
+  "name": "zenix",
+  "version": "1.0.0",
+  "author": "Zensui Hime",
+  "main": "dist/index.js",
+  "dependencies": {
+    "chalk": "^5.6.2",
+    "commander": "^14.0.1",
+    "exiftool-vendored": "^30.5.0",
+    "ora": "^8.2.0",
+    "sharp": "^0.34.3"
+  },
+  "bin": {
+    "zenix": "./dist/index.js"
+  },
+  "description": "Zenix - High-performance image processing utilities by ZensuiHime",
+  "keywords": [
+    "image",
+    "processing",
+    "metadata",
+    "resize",
+    "watermark",
+    "cli"
+  ],
+  "license": "MIT",
+  "scripts": {
+    "dev": "bun run src/index.ts",
+    "build": "bun build src/index.ts --outdir dist --target bun",
+    "compile": "bun build src/index.ts --compile --outfile zenix.exe",
+    "test": "bun test --timeout 15000",
+    "test:watch": "bun test --watch --timeout 15000",
+    "test:coverage": "bun test --coverage --timeout 15000",
+    "typecheck": "bun tsc --noEmit",
+    "lint": "biome check src/",
+    "lint:fix": "biome check --write src/",
+    "format": "biome format --write src/"
+  },
+  "type": "module",
+  "devDependencies": {
+    "@biomejs/biome": "^2.2.4",
+    "@types/bun": "^1.2.21",
+    "pixelmatch": "^7.1.0"
+  }
+}
