@@ -35,7 +35,7 @@ test/
 │   │   ├── watermark-overlay-test.png
 │   │   ├── watermark-overlay-test.jpg
 │   │   └── watermark-overlay-test.webp
-│   ├── watermark-results/     # Reference images for comparison
+│   ├── watermark-reference/   # Reference images for comparison
 │   │   └── (reference images for pixel comparison)
 │   └── test-output/           # Generated test images (auto-created)
 └── output/                    # Temporary output directory (auto-created)
@@ -73,7 +73,7 @@ Overlay images for testing watermark functionality:
 - `watermark-overlay-test.jpg` - JPEG watermark overlay
 - `watermark-overlay-test.webp` - WebP watermark overlay
 
-#### Watermark Reference Files (`test/files/watermark-results/`)
+#### Watermark Reference Files (`test/files/watermark-reference/`)
 Reference images for pixel-by-pixel comparison testing:
 
 - Contains expected output images for all watermark test cases
@@ -106,11 +106,11 @@ bun test test/watermark.test.ts --timeout 30000
 - `resize.test.ts` - Image resizing functionality tests (uses `files/images/`)
 - `crop.test.ts` - Image cropping functionality tests (uses `files/images/`)
 - `convert.test.ts` - Image format conversion tests (uses `files/images/`)
-- `watermark.test.ts` - Watermark functionality tests (uses `files/watermark-overlays/` and `files/watermark-results/`)
+- `watermark.test.ts` - Watermark functionality tests (uses `files/watermark-overlays/` and `files/watermark-reference/`)
 - `files/metadata/` - Directory for metadata test files
 - `files/images/` - Directory for image processing test files
 - `files/watermark-overlays/` - Directory for watermark overlay images
-- `files/watermark-results/` - Directory for reference images (pixel comparison)
+- `files/watermark-reference/` - Directory for reference images (pixel comparison)
 - `files/test-output/` - Directory for generated test images (auto-created/cleaned)
 - `output/` - Temporary output directory (created/deleted during tests)
 

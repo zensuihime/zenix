@@ -5,7 +5,7 @@ import pixelmatch from 'pixelmatch';
 import sharp from 'sharp';
 
 // Test configuration
-const TEST_RESULTS_DIR = 'test/files/watermark-results'; // Reference images (fixed, untouched)
+const TEST_RESULTS_DIR = 'test/files/watermark-reference'; // Reference images (fixed, untouched)
 const TEST_OUTPUT_DIR = 'test/files/test-output'; // Generated test images
 const TEST_IMAGES_DIR = 'test/files/images';
 const TEST_OVERLAYS_DIR = 'test/files/watermark-overlays';
@@ -110,7 +110,7 @@ interface TestCase {
     id: string;
     description: string;
     input: string;
-    referenceOutput: string; // Reference image in watermark-results
+    referenceOutput: string; // Reference image in watermark-reference
     testOutput: string; // Generated test image in test-output
     options: {
         text?: string;
