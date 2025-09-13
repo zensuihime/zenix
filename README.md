@@ -1,17 +1,13 @@
 # Zenix
 
-**Zenix** - Simple image processing utilities by ZensuiHime
+A lightweight CLI tool for image processing - metadata stripping, resizing, cropping, format conversion, and watermarking.
 
-A lightweight CLI tool I built for my own daily image processing needs - metadata stripping, resizing, cropping, and format conversion.
+> **Personal Tool**: Built for my own daily image processing needs. Open source under MIT license, but not seeking contributions. Feel free to fork it!
 
-*I got tired of using different tools for simple image tasks, so I made this to handle my common workflows in one place.*
+## Features
 
-**Why "Zenix"?** It's a combination of "Zen" (from my name ZensuiHime, representing the simple, focused approach) + "ix" (from "pixel" - because it's all about images). Plus it sounds like a real tool name! 🎨
-
-## What it does
-
-- **Strip metadata** - Clean EXIF data from photos and videos (privacy)
-- **Resize images** - Quick resizing with width/height/scale options
+- **Strip metadata** - Clean EXIF data from photos and videos
+- **Resize images** - Quick resizing with width/height/scale options  
 - **Crop images** - Crop by aspect ratio or exact dimensions
 - **Convert formats** - Switch between JPEG and PNG
 - **Add watermarks** - Text or image watermarks with full customization
@@ -105,6 +101,24 @@ build/
 dist/                        # JavaScript bundle
 └── index.js                 # Bundled application
 ```
+
+## About
+
+**Why "Zenix"?** It's a combination of "Zen" (from my name ZensuiHime, representing the simple, focused approach) + "ix" (from "pixel" - because it's all about images). Plus it sounds like a real tool name! 🎨
+
+*I got tired of using different tools for simple image tasks, so I made this to handle my common workflows in one place.*
+
+## License & Usage
+
+This project is released under the [MIT License](LICENSE). 
+
+**Personal Tool Notice**: This is a personal project I built for my own image processing needs. While it's open source and you're welcome to use it, I'm not actively seeking:
+- Feature requests
+- Pull requests  
+- Issue reports
+- Community contributions
+
+If you find it useful, feel free to fork it and modify it for your own needs!
 
 ## Testing
 
