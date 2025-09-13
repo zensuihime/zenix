@@ -6,7 +6,7 @@ A lightweight CLI tool I built for my own daily image processing needs - metadat
 
 *I got tired of using different tools for simple image tasks, so I made this to handle my common workflows in one place.*
 
-**Why "Zenix"?** It's a combination of "Zen" (for the simple, focused approach) + "ix" (from "pixel" - because it's all about images). Plus it sounds like a real tool name! 🎨
+**Why "Zenix"?** It's a combination of "Zen" (from my name ZensuiHime, representing the simple, focused approach) + "ix" (from "pixel" - because it's all about images). Plus it sounds like a real tool name! 🎨
 
 ## What it does
 
@@ -23,11 +23,18 @@ A lightweight CLI tool I built for my own daily image processing needs - metadat
 # Install dependencies
 bun install
 
-# Strip metadata from a photo
-zenix strip photo.jpg clean-photo.jpg
+# Build the project
+bun run build
 
-# Resize an image
-zenix resize --width 800 photo.jpg resized.jpg
+# Compile to executable
+bun run compile
+
+# Run the compiled binary
+./build/bin/zenix.exe --help
+
+# Or run directly with bun
+bun run dev -- strip photo.jpg clean-photo.jpg
+bun run dev -- resize --width 800 photo.jpg resized.jpg
 
 # Crop to square
 zenix crop --aspect 1:1 photo.jpg square.jpg
@@ -68,6 +75,35 @@ Creates `zenix.exe` so you can use it anywhere without installing dependencies.
 bun run dev    # Run locally
 bun test       # Run tests
 bun run build  # Build for production
+```
+
+## Development
+
+### Build Commands
+
+```bash
+# Development
+bun run dev                    # Run in development mode
+bun run typecheck             # TypeScript type checking
+bun run lint                  # Lint code
+bun run lint:fix              # Fix linting issues
+bun run format                # Format code
+
+# Building
+bun run build                 # Build JavaScript bundle
+bun run compile               # Compile executable for current platform
+bun run clean                 # Clean build artifacts
+```
+
+### Output Structure
+
+```
+build/
+├── bin/                      # Compiled executables
+│   └── zenix.exe                # Executable (zenix on Unix)
+
+dist/                        # JavaScript bundle
+└── index.js                 # Bundled application
 ```
 
 ## Testing
