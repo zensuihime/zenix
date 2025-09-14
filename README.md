@@ -13,8 +13,9 @@ A lightweight CLI tool for image processing - metadata stripping, resizing, crop
 - **Add watermarks** - Text or image watermarks with full customization
 - **Batch process** - Handle folders of images at once
 
-## Quick start
+## Installation
 
+### Local Development
 ```bash
 # Install dependencies
 bun install
@@ -22,15 +23,29 @@ bun install
 # Build the project
 bun run build
 
-# Compile to executable
-bun run compile
+# Run locally
+bun start --help
+```
 
-# Run the compiled binary
-./build/bin/zenix.exe --help
+### Global Installation
+```bash
+# Create tarball and install globally
+bun pack
+bun add -g ./zenix-1.0.0.tgz
 
-# Or run directly with bun
-bun run dev -- strip photo.jpg clean-photo.jpg
-bun run dev -- resize --width 800 photo.jpg resized.jpg
+# Now use zenix from anywhere
+zenix --help
+```
+
+
+## Quick start
+
+```bash
+# Strip metadata from a photo
+zenix strip photo.jpg clean-photo.jpg
+
+# Resize image to 800px width
+zenix resize --width 800 photo.jpg resized.jpg
 
 # Crop to square
 zenix crop --aspect 1:1 photo.jpg square.jpg
@@ -57,18 +72,11 @@ zenix watermark --image logo.png --size 10 --opacity 0.8 photo.jpg watermarked.j
 zenix strip -r photos/ cleaned/
 ```
 
-## Make it portable
-
-```bash
-bun run compile
-```
-
-Creates `zenix.exe` so you can use it anywhere without installing dependencies.
-
 ## Development
 
 ```bash
-bun run dev    # Run locally
+bun run dev    # Run in development mode
+bun start      # Run the built version
 bun test       # Run tests
 bun run build  # Build for production
 ```
@@ -87,17 +95,12 @@ bun run format                # Format code
 
 # Building
 bun run build                 # Build JavaScript bundle
-bun run compile               # Compile executable for current platform
 bun run clean                 # Clean build artifacts
 ```
 
 ### Output Structure
 
 ```
-build/
-├── bin/                      # Compiled executables
-│   └── zenix.exe                # Executable (zenix on Unix)
-
 dist/                        # JavaScript bundle
 └── index.js                 # Bundled application
 ```

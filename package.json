@@ -13,6 +13,11 @@
   "bin": {
     "zenix": "./dist/index.js"
   },
+  "files": [
+    "dist/",
+    "README.md",
+    "LICENSE"
+  ],
   "description": "Zenix - High-performance image processing utilities by ZensuiHime",
   "keywords": [
     "image",
@@ -26,7 +31,7 @@
   "scripts": {
     "dev": "bun run src/index.ts",
     "build": "bun build src/index.ts --outdir dist --target bun",
-    "compile": "bun scripts/compile-platform.js",
+    "start": "bun run dist/index.js",
     "clean": "rimraf dist build",
     "test": "bun test --timeout 15000",
     "test:watch": "bun test --watch --timeout 15000",
