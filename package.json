@@ -1,5 +1,5 @@
 {
-  "name": "zenix",
+  "name": "@zensuihime/zenix",
   "version": "1.0.0",
   "author": "Zensui Hime",
   "main": "dist/index.js",
