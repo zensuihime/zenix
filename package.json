@@ -46,7 +46,6 @@
     "start": "bun run dist/cli.js",
     "clean": "rimraf dist build",
     "test": "bun test --timeout 15000",
-    "test:watch": "bun test --watch --timeout 15000",
     "test:coverage": "bun test --coverage --timeout 15000",
     "typecheck": "bun tsc --noEmit",
     "typecheck:lib": "bun tsc --project tsconfig.lib.json --noEmit",
@@ -54,14 +53,26 @@
     "lint": "biome check src/",
     "lint:fix": "biome check --write src/",
     "format": "biome format --write src/",
-    "prepublishOnly": "bun run clean && bun run build"
+    "format:check": "biome format src/",
+    "lint:check": "biome check src/",
+    "prepublishOnly": "bun run clean && bun run build",
+    "prepare": "husky install",
+    "precommit": "bun run lint-staged && bun run typecheck"
   },
   "type": "module",
   "devDependencies": {
     "@biomejs/biome": "^2.2.4",
     "@types/bun": "^1.2.21",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.6",
     "pixelmatch": "^7.1.0",
     "rimraf": "^6.0.1",
     "typescript": "^5.9.2"
+  },
+  "lint-staged": {
+    "src/**/*.{ts,js}": [
+      "biome check --write",
+      "biome format --write"
+    ]
   }
 }
