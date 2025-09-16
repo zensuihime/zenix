@@ -1,5 +1,9 @@
 echo "🔍 Running pre-commit checks..."
 
+# Sync version between package.json and cli.ts
+echo "🔍 Syncing version..."
+bun run sync-version
+
 # Run lint-staged (linting and formatting)
 bun run lint-staged
 

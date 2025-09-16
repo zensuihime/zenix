@@ -15,7 +15,7 @@ const program = new Command();
 program
     .name('zenix')
     .description('Zenix - High-performance image processing utilities by ZensuiHime')
-    .version('1.0.0');
+    .version('1.1.0');
 
 // Strip command
 program
