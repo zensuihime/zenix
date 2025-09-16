@@ -1,6 +1,6 @@
 # Zenix
 
-A lightweight CLI tool for image processing - metadata stripping, resizing, cropping, format conversion, and watermarking.
+A lightweight CLI tool and library for image processing - metadata stripping, resizing, cropping, format conversion, and watermarking.
 
 > **Personal Tool**: Built for my own daily image processing needs. Open source under MIT license, but not seeking contributions. Feel free to fork it!
 
@@ -27,14 +27,21 @@ bun run build
 bun start --help
 ```
 
-### Global Installation
+### Global Installation (CLI)
 ```bash
-# Create tarball and install globally
-bun pack
-bun add -g ./zenix-1.0.0.tgz
+# Install globally for CLI usage
+bun add -g @zensuihime/zenix
 
 # Now use zenix from anywhere
 zenix --help
+```
+
+### Library Installation
+```bash
+# Install as dependency for programmatic usage
+bun add @zensuihime/zenix
+# or
+npm install @zensuihime/zenix
 ```
 
 
@@ -72,13 +79,64 @@ zenix watermark --image logo.png --size 10 --opacity 0.8 photo.jpg watermarked.j
 zenix strip -r photos/ cleaned/
 ```
 
-## Development
+## Library Usage
 
-```bash
-bun run dev    # Run in development mode
-bun start      # Run the built version
-bun test       # Run tests
-bun run build  # Build for production
+You can also use zenix programmatically in your projects:
+
+```javascript
+import { convertImage, resizeImage, cropImage, addWatermark, stripMetadata } from '@zensuihime/zenix';
+
+// Convert image
+await convertImage('input.jpg', 'output.png', { 
+    quality: 90,
+    overwrite: true 
+});
+
+// Resize image
+await resizeImage('input.jpg', 'output.jpg', { 
+    width: 800,
+    progress: true 
+});
+
+// Crop image
+await cropImage('input.jpg', 'output.jpg', { 
+    aspect: '1:1',
+    position: 'center' 
+});
+
+// Add watermark
+await addWatermark('input.jpg', 'output.jpg', { 
+    text: 'WATERMARK',
+    position: 'bottom-right',
+    opacity: 0.8,
+    size: 5 
+});
+
+// Strip metadata
+await stripMetadata('input.jpg', 'output.jpg');
+
+// All functions return ProcessingResult with success status and counts
+const result = await convertImage('input.jpg', 'output.png');
+console.log(`Processed ${result.processed} files, ${result.errors} errors`);
+```
+
+### TypeScript Support
+
+Full TypeScript support with exported types:
+
+```typescript
+import { 
+    convertImage, 
+    resizeImage, 
+    cropImage, 
+    addWatermark, 
+    stripMetadata,
+    type ConvertOptions,
+    type ResizeOptions,
+    type CropOptions,
+    type WatermarkOptions,
+    type ProcessingResult
+} from '@zensuihime/zenix';
 ```
 
 ## Development
@@ -98,11 +156,18 @@ bun run build                 # Build JavaScript bundle
 bun run clean                 # Clean build artifacts
 ```
 
-### Output Structure
+### Project Structure
 
 ```
-dist/                        # JavaScript bundle
-└── index.js                 # Bundled application
+src/                         # TypeScript source
+├── index.ts                 # Library entry point (main export)
+├── cli.ts                   # CLI application
+└── lib/                     # Library implementation
+    ├── commands/            # Core functionality
+    └── types.ts             # TypeScript types
+
+dist/                        # Built CLI (for global installation)
+└── index.js                 # Compiled CLI application
 ```
 
 ## About

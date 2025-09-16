@@ -57,7 +57,6 @@ describe('Metadata Stripping Tests', () => {
 
             // Strip metadata
             await stripMetadata(inputFile, outputFile, {
-                verbose: true
             });
 
             // Check output file exists
@@ -89,7 +88,6 @@ describe('Metadata Stripping Tests', () => {
             const originalMetadataCount = Object.keys(originalMetadata).length;
 
             await stripMetadata(inputFile, outputFile, {
-                verbose: true
             });
 
             await fs.access(outputFile);
@@ -118,7 +116,6 @@ describe('Metadata Stripping Tests', () => {
             const originalMetadataCount = Object.keys(originalMetadata).length;
 
             await stripMetadata(inputFile, outputFile, {
-                verbose: true
             });
 
             await fs.access(outputFile);
@@ -159,7 +156,6 @@ describe('Metadata Stripping Tests', () => {
             await stripMetadata(inputDir, outputDir, {
                 recursive: false,
                 progress: false,
-                verbose: true
             });
 
             // Check that output files were created
@@ -196,7 +192,6 @@ describe('Metadata Stripping Tests', () => {
             await stripMetadata(inputDir, outputDir, {
                 recursive: true,
                 progress: false,
-                verbose: true
             });
 
             // Check that files in subdirectory were processed

@@ -2,7 +2,16 @@
   "name": "@zensuihime/zenix",
   "version": "1.0.0",
   "author": "Zensui Hime",
-  "main": "dist/index.js",
+  "main": "dist/lib/index.js",
+  "module": "dist/lib/index.js",
+  "types": "dist/lib/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/lib/index.js",
+      "require": "./dist/lib/index.js",
+      "types": "./dist/lib/index.d.ts"
+    }
+  },
   "dependencies": {
     "chalk": "^5.6.2",
     "commander": "^14.0.1",
@@ -11,14 +20,15 @@
     "sharp": "^0.34.3"
   },
   "bin": {
-    "zenix": "./dist/index.js"
+    "zenix": "./dist/cli.js"
   },
   "files": [
     "dist/",
+    "src/",
     "README.md",
     "LICENSE"
   ],
-  "description": "Zenix - High-performance image processing utilities by ZensuiHime",
+  "description": "Zenix - Lightweight CLI tool and library for image processing",
   "keywords": [
     "image",
     "processing",
@@ -29,23 +39,29 @@
   ],
   "license": "MIT",
   "scripts": {
-    "dev": "bun run src/index.ts",
-    "build": "bun build src/index.ts --outdir dist --target bun",
-    "start": "bun run dist/index.js",
+    "dev": "bun run src/cli.ts",
+    "build": "bun run clean && bun run build:lib && bun run build:cli",
+    "build:lib": "bun tsc --project tsconfig.lib.json",
+    "build:cli": "bun build src/cli.ts --outfile dist/cli.js --target bun --minify",
+    "start": "bun run dist/cli.js",
     "clean": "rimraf dist build",
     "test": "bun test --timeout 15000",
     "test:watch": "bun test --watch --timeout 15000",
     "test:coverage": "bun test --coverage --timeout 15000",
     "typecheck": "bun tsc --noEmit",
+    "typecheck:lib": "bun tsc --project tsconfig.lib.json --noEmit",
+    "typecheck:cli": "bun tsc --project tsconfig.cli.json --noEmit",
     "lint": "biome check src/",
     "lint:fix": "biome check --write src/",
-    "format": "biome format --write src/"
+    "format": "biome format --write src/",
+    "prepublishOnly": "bun run clean && bun run build"
   },
   "type": "module",
   "devDependencies": {
     "@biomejs/biome": "^2.2.4",
     "@types/bun": "^1.2.21",
     "pixelmatch": "^7.1.0",
-    "rimraf": "^6.0.1"
+    "rimraf": "^6.0.1",
+    "typescript": "^5.9.2"
   }
 }
