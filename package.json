@@ -1,6 +1,6 @@
 {
   "name": "@zensuihime/zenix",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "author": "Zensui Hime",
   "main": "dist/lib/index.js",
   "module": "dist/lib/index.js",
@@ -55,7 +55,7 @@
     "format": "biome format --write src/",
     "format:check": "biome format src/",
     "lint:check": "biome check src/",
-    "prepublishOnly": "bun run clean && bun run build",
+    "prepublishOnly": "bun run build",
     "prepare": "husky install",
     "precommit": "bun run lint-staged && bun run typecheck"
   },
