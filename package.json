@@ -1,6 +1,6 @@
 {
   "name": "@zensuihime/zenix",
-  "version": "1.1.2",
+  "version": "1.1.3",
   "author": "Zensui Hime",
   "main": "dist/lib/index.js",
   "module": "dist/lib/index.js",

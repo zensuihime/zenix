@@ -39,7 +39,9 @@ async function processSingleFile(
     const outputDir = path.dirname(outputPath);
     await fs.mkdir(outputDir, { recursive: true });
 
-    let pipeline = sharp(inputPath);
+    // Load image into buffer first to avoid file handle issues
+    const imageBuffer = await fs.readFile(inputPath);
+    let pipeline = sharp(imageBuffer);
 
     try {
         // Apply resize operations based on options

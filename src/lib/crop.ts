@@ -65,8 +65,11 @@ async function processSingleFile(
     const outputDir = path.dirname(outputPath);
     await fs.mkdir(outputDir, { recursive: true });
 
+    // Load image into buffer first to avoid file handle issues
+    const imageBuffer = await fs.readFile(inputPath);
+
     // Get image metadata
-    const metadataPipeline = sharp(inputPath);
+    const metadataPipeline = sharp(imageBuffer);
     let metadata: sharp.Metadata;
     try {
         metadata = await metadataPipeline.metadata();
@@ -105,7 +108,7 @@ async function processSingleFile(
     );
 
     // Apply crop
-    const pipeline = sharp(inputPath);
+    const pipeline = sharp(imageBuffer);
     try {
         pipeline.extract({
             left: cropX,

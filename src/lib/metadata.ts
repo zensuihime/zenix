@@ -94,6 +94,9 @@ async function processSingleFile(
         );
     } catch (error) {
         throw new Error(`Failed to strip metadata: ${error}`);
+    } finally {
+        // Close ExifTool instance to prevent process hanging
+        await exiftool.end();
     }
 
     return {
@@ -188,8 +191,13 @@ export async function inspectMetadata(
     const stats = await fs.stat(inputPath);
 
     if (stats.isFile()) {
-        const metadata = await exiftool.read(inputPath);
-        return { metadata, fileCount: 1 };
+        try {
+            const metadata = await exiftool.read(inputPath);
+            return { metadata, fileCount: 1 };
+        } finally {
+            // Close ExifTool instance to prevent process hanging
+            await exiftool.end();
+        }
     } else if (stats.isDirectory()) {
         return await inspectDirectory(inputPath, options);
     } else {
@@ -222,7 +230,12 @@ async function inspectDirectory(
     if (!firstFile) {
         return { metadata: {}, fileCount: 0 };
     }
-    const metadata = await exiftool.read(firstFile);
 
-    return { metadata, fileCount: files.length };
+    try {
+        const metadata = await exiftool.read(firstFile);
+        return { metadata, fileCount: files.length };
+    } finally {
+        // Close ExifTool instance to prevent process hanging
+        await exiftool.end();
+    }
 }

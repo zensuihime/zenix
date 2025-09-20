@@ -189,7 +189,10 @@ async function convertSingleImage(
     targetFormat: SupportedFormat,
     options: ConvertOptions
 ): Promise<void> {
-    let pipeline = sharp(inputPath);
+    // Load image into buffer first to avoid file handle issues
+    const imageBuffer = await fs.readFile(inputPath);
+
+    let pipeline = sharp(imageBuffer);
 
     try {
         // Apply format-specific settings
