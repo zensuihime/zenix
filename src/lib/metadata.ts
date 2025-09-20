@@ -1,48 +1,20 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { Glob } from 'bun';
-import { exiftool, type Tags } from 'exiftool-vendored';
+import { ExifTool, type Tags } from 'exiftool-vendored';
 import type { MetadataOptions, ProcessingResult } from '../types';
 
 // Supported file formats
+// biome-ignore format: keep SUPPORTED_FORMATS readable
 const SUPPORTED_FORMATS = [
     // Images
-    'jpg',
-    'jpeg',
-    'png',
-    'gif',
-    'bmp',
-    'tiff',
-    'tif',
-    'webp',
-    'svg',
-    'raw',
+    'jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'tif', 'webp', 'svg', 'raw',
     // Videos
-    'mp4',
-    'avi',
-    'mov',
-    'mkv',
-    'webm',
-    '3gp',
-    'flv',
-    'wmv',
-    'm4v',
+    'mp4', 'avi', 'mov', 'mkv', 'webm', '3gp', 'flv', 'wmv', 'm4v',
     // Audio
-    'mp3',
-    'wav',
-    'flac',
-    'aac',
-    'm4a',
-    'ogg',
-    'wma',
+    'mp3', 'wav', 'flac', 'aac', 'm4a', 'ogg', 'wma',
     // Documents
-    'pdf',
-    'doc',
-    'docx',
-    'xls',
-    'xlsx',
-    'ppt',
-    'pptx',
+    'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx',
 ];
 
 export async function stripMetadata(
@@ -83,9 +55,10 @@ async function processSingleFile(
     // Copy file to output location first
     await fs.copyFile(inputPath, outputPath);
 
-    // Strip ALL metadata using ExifTool
+    // Strip ALL metadata using ExifTool with automatic cleanup
+    await using et = new ExifTool();
     try {
-        await exiftool.write(
+        await et.write(
             outputPath,
             {},
             {
@@ -94,9 +67,6 @@ async function processSingleFile(
         );
     } catch (error) {
         throw new Error(`Failed to strip metadata: ${error}`);
-    } finally {
-        // Close ExifTool instance to prevent process hanging
-        await exiftool.end();
     }
 
     return {
@@ -139,32 +109,37 @@ async function processDirectory(
     let errors = 0;
     const errorMessages: string[] = [];
 
-    // Process files in parallel batches
-    const batchSize = 5; // Smaller batch size for ExifTool operations
-    for (let i = 0; i < files.length; i += batchSize) {
-        const batch = files.slice(i, i + batchSize);
+    // Use single ExifTool instance for all files to avoid BatchCluster conflicts
+    await using et = new ExifTool();
 
-        const promises = batch.map(async (file) => {
-            try {
-                const relativePath = path.relative(inputDir, file);
-                const outputFile = path.join(outputDir, relativePath);
-                const outputFileDir = path.dirname(outputFile);
+    // Process files sequentially to avoid ExifTool conflicts
+    for (const file of files) {
+        try {
+            const relativePath = path.relative(inputDir, file);
+            const outputFile = path.join(outputDir, relativePath);
+            const outputFileDir = path.dirname(outputFile);
 
-                // Create subdirectory if needed
-                await fs.mkdir(outputFileDir, { recursive: true });
+            // Create subdirectory if needed
+            await fs.mkdir(outputFileDir, { recursive: true });
 
-                // Process the file
-                await processSingleFile(file, outputFile, options);
+            // Copy file to output location first
+            await fs.copyFile(file, outputFile);
 
-                processed++;
-            } catch (error) {
-                errors++;
-                const errorMessage = `Error processing ${file}: ${error instanceof Error ? error.message : String(error)}`;
-                errorMessages.push(errorMessage);
-            }
-        });
+            // Strip ALL metadata using the shared ExifTool instance
+            await et.write(
+                outputFile,
+                {},
+                {
+                    writeArgs: ['-all=', '-overwrite_original'],
+                }
+            );
 
-        await Promise.all(promises);
+            processed++;
+        } catch (error) {
+            errors++;
+            const errorMessage = `Error processing ${file}: ${error instanceof Error ? error.message : String(error)}`;
+            errorMessages.push(errorMessage);
+        }
     }
 
     return {
@@ -191,13 +166,9 @@ export async function inspectMetadata(
     const stats = await fs.stat(inputPath);
 
     if (stats.isFile()) {
-        try {
-            const metadata = await exiftool.read(inputPath);
-            return { metadata, fileCount: 1 };
-        } finally {
-            // Close ExifTool instance to prevent process hanging
-            await exiftool.end();
-        }
+        await using et = new ExifTool();
+        const metadata = await et.read(inputPath);
+        return { metadata, fileCount: 1 };
     } else if (stats.isDirectory()) {
         return await inspectDirectory(inputPath, options);
     } else {
@@ -231,11 +202,7 @@ async function inspectDirectory(
         return { metadata: {}, fileCount: 0 };
     }
 
-    try {
-        const metadata = await exiftool.read(firstFile);
-        return { metadata, fileCount: files.length };
-    } finally {
-        // Close ExifTool instance to prevent process hanging
-        await exiftool.end();
-    }
+    await using et = new ExifTool();
+    const metadata = await et.read(firstFile);
+    return { metadata, fileCount: files.length };
 }
