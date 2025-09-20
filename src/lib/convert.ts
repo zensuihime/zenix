@@ -227,4 +227,5 @@ async function convertSingleImage(
     }
 
     await pipeline.toFile(outputPath);
+    pipeline.destroy();
 }

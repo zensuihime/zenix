@@ -171,6 +171,7 @@ async function processSingleFile(
             })
             .png()
             .toBuffer();
+        watermark.destroy();
 
         // Calculate watermark position
         const { x, y } = calculateImagePosition(
@@ -190,20 +191,23 @@ async function processSingleFile(
         if (watermarkFormat === 'jpeg') {
             // For JPG images, use ensureAlpha() with opacity as suggested in Stack Overflow
             // https://stackoverflow.com/a/75388467
-            watermarkWithOpacity = await sharp(resizedWatermark)
-                .ensureAlpha(opacity)
-                .png()
-                .toBuffer();
+            const opacityPipeline = sharp(resizedWatermark);
+            watermarkWithOpacity = await opacityPipeline.ensureAlpha(opacity).png().toBuffer();
+            opacityPipeline.destroy();
         } else {
             // For PNG/SVG/WebP images, manipulate alpha channel directly
             // Solution based on https://github.com/lovell/sharp/issues/554
-            const { width: w, height: h, channels } = await sharp(resizedWatermark).metadata();
+            const metadataPipeline = sharp(resizedWatermark);
+            const { width: w, height: h, channels } = await metadataPipeline.metadata();
+            metadataPipeline.destroy();
 
             // Get raw pixel data
-            const { data } = await sharp(resizedWatermark)
+            const rawPipeline = sharp(resizedWatermark);
+            const { data } = await rawPipeline
                 .ensureAlpha()
                 .raw()
                 .toBuffer({ resolveWithObject: true });
+            rawPipeline.destroy();
 
             // Modify alpha channel (4th channel in RGBA)
             for (let i = 3; i < data.length; i += 4) {
@@ -211,15 +215,15 @@ async function processSingleFile(
             }
 
             // Create new image with modified alpha
-            watermarkWithOpacity = await sharp(data, {
+            const finalPipeline = sharp(data, {
                 raw: {
                     width: w,
                     height: h,
                     channels: channels,
                 },
-            })
-                .png()
-                .toBuffer();
+            });
+            watermarkWithOpacity = await finalPipeline.png().toBuffer();
+            finalPipeline.destroy();
         }
 
         // Composite the watermarked image
@@ -249,6 +253,7 @@ async function processSingleFile(
     }
 
     await pipeline.toFile(outputPath);
+    pipeline.destroy();
 
     return {
         success: true,

@@ -95,6 +95,7 @@ async function processSingleFile(
     }
 
     await pipeline.toFile(outputPath);
+    pipeline.destroy();
 
     return {
         success: true,
