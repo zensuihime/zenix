@@ -48,7 +48,13 @@ async function processSingleFile(
     await fs.mkdir(outputDir, { recursive: true });
 
     let pipeline = sharp(inputPath);
-    const metadata = await pipeline.metadata();
+    let metadata: sharp.Metadata;
+    try {
+        metadata = await pipeline.metadata();
+    } catch (error) {
+        pipeline.destroy();
+        throw error;
+    }
     const width = metadata.width || 0;
     const height = metadata.height || 0;
 
@@ -139,7 +145,13 @@ async function processSingleFile(
 
         // Load and resize watermark
         const watermark = sharp(watermarkPath);
-        const watermarkMetadata = await watermark.metadata();
+        let watermarkMetadata: sharp.Metadata;
+        try {
+            watermarkMetadata = await watermark.metadata();
+        } catch (error) {
+            watermark.destroy();
+            throw error;
+        }
 
         // Validate overlay image format
         const supportedFormats = ['jpeg', 'png', 'svg', 'webp'];
@@ -164,14 +176,18 @@ async function processSingleFile(
             sizePercent
         );
 
-        const resizedWatermark = await watermark
-            .resize(watermarkWidth, watermarkHeight, {
-                fit: 'inside',
-                withoutEnlargement: true,
-            })
-            .png()
-            .toBuffer();
-        watermark.destroy();
+        let resizedWatermark: Buffer;
+        try {
+            resizedWatermark = await watermark
+                .resize(watermarkWidth, watermarkHeight, {
+                    fit: 'inside',
+                    withoutEnlargement: true,
+                })
+                .png()
+                .toBuffer();
+        } finally {
+            watermark.destroy();
+        }
 
         // Calculate watermark position
         const { x, y } = calculateImagePosition(
@@ -237,23 +253,26 @@ async function processSingleFile(
         ]);
     }
 
-    // Save with appropriate format
-    const ext = path.extname(outputPath).toLowerCase();
-    switch (ext) {
-        case '.jpg':
-        case '.jpeg':
-            pipeline = pipeline.jpeg();
-            break;
-        case '.png':
-            pipeline = pipeline.png();
-            break;
-        case '.webp':
-            pipeline = pipeline.webp();
-            break;
-    }
+    try {
+        // Save with appropriate format
+        const ext = path.extname(outputPath).toLowerCase();
+        switch (ext) {
+            case '.jpg':
+            case '.jpeg':
+                pipeline = pipeline.jpeg();
+                break;
+            case '.png':
+                pipeline = pipeline.png();
+                break;
+            case '.webp':
+                pipeline = pipeline.webp();
+                break;
+        }
 
-    await pipeline.toFile(outputPath);
-    pipeline.destroy();
+        await pipeline.toFile(outputPath);
+    } finally {
+        pipeline.destroy();
+    }
 
     return {
         success: true,

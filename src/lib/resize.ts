@@ -41,61 +41,64 @@ async function processSingleFile(
 
     let pipeline = sharp(inputPath);
 
-    // Apply resize operations based on options
-    if (options.scale) {
-        const scale = options.scale;
+    try {
+        // Apply resize operations based on options
+        if (options.scale) {
+            const scale = options.scale;
 
-        const metadata = await pipeline.metadata();
-        const newWidth = Math.round((metadata.width || 0) * scale);
-        const newHeight = Math.round((metadata.height || 0) * scale);
+            const metadata = await pipeline.metadata();
+            const newWidth = Math.round((metadata.width || 0) * scale);
+            const newHeight = Math.round((metadata.height || 0) * scale);
 
-        pipeline = pipeline.resize(newWidth, newHeight, {
-            kernel: sharp.kernel.lanczos3, // High-quality resampling
-            withoutEnlargement: false,
-        });
-    } else if (options.fit) {
-        const [width, height] = options.fit.split('x').map(Number);
-        if (!width || !height) {
-            throw new Error('Fit dimensions must be in format WIDTHxHEIGHT (e.g., 1920x1080)');
+            pipeline = pipeline.resize(newWidth, newHeight, {
+                kernel: sharp.kernel.lanczos3, // High-quality resampling
+                withoutEnlargement: false,
+            });
+        } else if (options.fit) {
+            const [width, height] = options.fit.split('x').map(Number);
+            if (!width || !height) {
+                throw new Error('Fit dimensions must be in format WIDTHxHEIGHT (e.g., 1920x1080)');
+            }
+
+            pipeline = pipeline.resize(width, height, {
+                kernel: sharp.kernel.lanczos3,
+                fit: 'inside', // Maintain aspect ratio
+                withoutEnlargement: false,
+            });
+        } else if (options.width || options.height) {
+            const width = options.width;
+            const height = options.height;
+
+            pipeline = pipeline.resize(width, height, {
+                kernel: sharp.kernel.lanczos3,
+                withoutEnlargement: false,
+            });
+        } else {
+            throw new Error('Please specify resize options: --width, --height, --scale, or --fit');
         }
 
-        pipeline = pipeline.resize(width, height, {
-            kernel: sharp.kernel.lanczos3,
-            fit: 'inside', // Maintain aspect ratio
-            withoutEnlargement: false,
-        });
-    } else if (options.width || options.height) {
-        const width = options.width;
-        const height = options.height;
+        // Performance optimization: Use appropriate output format
+        const ext = path.extname(outputPath).toLowerCase();
+        switch (ext) {
+            case '.jpg':
+            case '.jpeg':
+                pipeline = pipeline.jpeg({ quality: 100, mozjpeg: true });
+                break;
+            case '.png':
+                pipeline = pipeline.png({ compressionLevel: 9, quality: 100 });
+                break;
+            case '.webp':
+                pipeline = pipeline.webp({ quality: 100 });
+                break;
+            default:
+                // Keep original format
+                break;
+        }
 
-        pipeline = pipeline.resize(width, height, {
-            kernel: sharp.kernel.lanczos3,
-            withoutEnlargement: false,
-        });
-    } else {
-        throw new Error('Please specify resize options: --width, --height, --scale, or --fit');
+        await pipeline.toFile(outputPath);
+    } finally {
+        pipeline.destroy();
     }
-
-    // Performance optimization: Use appropriate output format
-    const ext = path.extname(outputPath).toLowerCase();
-    switch (ext) {
-        case '.jpg':
-        case '.jpeg':
-            pipeline = pipeline.jpeg({ quality: 100, mozjpeg: true });
-            break;
-        case '.png':
-            pipeline = pipeline.png({ compressionLevel: 9, quality: 100 });
-            break;
-        case '.webp':
-            pipeline = pipeline.webp({ quality: 100 });
-            break;
-        default:
-            // Keep original format
-            break;
-    }
-
-    await pipeline.toFile(outputPath);
-    pipeline.destroy();
 
     return {
         success: true,

@@ -191,41 +191,44 @@ async function convertSingleImage(
 ): Promise<void> {
     let pipeline = sharp(inputPath);
 
-    // Apply format-specific settings
-    switch (targetFormat) {
-        case 'jpg':
-        case 'jpeg': {
-            const jpegQuality = options.quality ?? 92;
-            // Validate quality range
-            if (jpegQuality < 1 || jpegQuality > 100) {
-                throw new Error(`Error: Quality must be between 1 and 100, got ${jpegQuality}`);
+    try {
+        // Apply format-specific settings
+        switch (targetFormat) {
+            case 'jpg':
+            case 'jpeg': {
+                const jpegQuality = options.quality ?? 92;
+                // Validate quality range
+                if (jpegQuality < 1 || jpegQuality > 100) {
+                    throw new Error(`Error: Quality must be between 1 and 100, got ${jpegQuality}`);
+                }
+                pipeline = pipeline.jpeg({
+                    quality: jpegQuality,
+                    mozjpeg: true,
+                });
+                break;
             }
-            pipeline = pipeline.jpeg({
-                quality: jpegQuality,
-                mozjpeg: true,
-            });
-            break;
+
+            case 'png': {
+                const pngCompression = options.compression ?? 6;
+                // Validate compression range
+                if (pngCompression < 0 || pngCompression > 9) {
+                    throw new Error(
+                        `Error: Compression must be between 0 and 9, got ${pngCompression}`
+                    );
+                }
+                pipeline = pipeline.png({
+                    compressionLevel: pngCompression,
+                    quality: 100, // PNG is lossless
+                });
+                break;
+            }
+
+            default:
+                throw new Error(`Unsupported target format: ${targetFormat}`);
         }
 
-        case 'png': {
-            const pngCompression = options.compression ?? 6;
-            // Validate compression range
-            if (pngCompression < 0 || pngCompression > 9) {
-                throw new Error(
-                    `Error: Compression must be between 0 and 9, got ${pngCompression}`
-                );
-            }
-            pipeline = pipeline.png({
-                compressionLevel: pngCompression,
-                quality: 100, // PNG is lossless
-            });
-            break;
-        }
-
-        default:
-            throw new Error(`Unsupported target format: ${targetFormat}`);
+        await pipeline.toFile(outputPath);
+    } finally {
+        pipeline.destroy();
     }
-
-    await pipeline.toFile(outputPath);
-    pipeline.destroy();
 }

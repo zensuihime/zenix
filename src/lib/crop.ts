@@ -67,9 +67,14 @@ async function processSingleFile(
 
     // Get image metadata
     const metadataPipeline = sharp(inputPath);
-    const metadata = await metadataPipeline.metadata();
+    let metadata: sharp.Metadata;
+    try {
+        metadata = await metadataPipeline.metadata();
+    } finally {
+        metadataPipeline.destroy();
+    }
+
     const { width: imageWidth, height: imageHeight } = metadata;
-    metadataPipeline.destroy();
 
     if (!imageWidth || !imageHeight) {
         throw new Error('Could not read image dimensions');
@@ -100,15 +105,19 @@ async function processSingleFile(
     );
 
     // Apply crop
-    const pipeline = sharp(inputPath).extract({
-        left: cropX,
-        top: cropY,
-        width: cropWidth,
-        height: cropHeight,
-    });
+    const pipeline = sharp(inputPath);
+    try {
+        pipeline.extract({
+            left: cropX,
+            top: cropY,
+            width: cropWidth,
+            height: cropHeight,
+        });
 
-    await pipeline.toFile(outputPath);
-    pipeline.destroy();
+        await pipeline.toFile(outputPath);
+    } finally {
+        pipeline.destroy();
+    }
 
     return {
         success: true,
